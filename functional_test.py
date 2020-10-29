@@ -1,5 +1,6 @@
 import unittest
 from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 from webdriver_manager.chrome import ChromeDriverManager
 
 class NewVisitorTest(unittest.TestCase):
@@ -15,14 +16,33 @@ class NewVisitorTest(unittest.TestCase):
 
         #* 웹 페이지 타이틀과 해더가 'TO-DO'를 효시하고 있다.
         self.assertIn('TO-DO', self.browser.title)
+        header_text = self.browser.find_element_by_tag_name('h1').text
+        self.assertIn('TO-DO', header_text)
+
+        #* 그는 바로 작업을 추가하기로 한다.
+        inputbox = self.browser.find_element_by_id('id_new_item')
+        self.assertEqual(
+            inputbox.get_attribute('placeholder'),
+            '작업 아이템 입력'
+        )
+
+        #* "공작깃털 사기"라고 텍스트 상자에 입력한다.
+        inputbox.send_keys('공작깃털 사기')
+
+
+        #* 엔터키를 치면 페이지가 갱신되고 작업목록에
+        #* "1: 공작깃털 사기" 아이템이 추가된다.
+        inputbox.send_keys(Keys.ENTER)
+
+        table = self.browser.find_element_by_id('id_list_table')
+        rows = self.browser.find_elements_by_tag_name('tr')
+        self.assertTrue(
+            any(row.text == "1: 공작깃털 사기" for row in rows),
+        )
+
         self.fail('finish the test!')
 
     """
-    그는 바로 작업을 추가하기로 한다.
-    "공작깃털 사기"라고 텍스트 상자에 입력한다.
-    
-    엔터키를 치면 페이지가 갱신되고 작업목록에
-    "1: 공작깃털 사기" 아이템이 추가된다.
     
     추가 아이템을 입력할 수 있는 여분의 텍스트 상자가 존재한다.
     다시 "공작 깃털을 이용해서 그물 만들기"라고 입력한다.
